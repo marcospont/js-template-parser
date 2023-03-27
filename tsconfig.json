@@ -1,0 +1,15 @@
+{
+	"include": ["src/**/*"],
+	"compilerOptions": {
+		"target": "es2021",
+		"strict": true,
+		"lib": ["dom", "esnext"],
+		"importHelpers": false,
+		"moduleResolution": "node",
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"typeRoots": ["node_modules/@types", "types"],
+		"resolveJsonModule": true,
+		"isolatedModules": true
+	}
+}
