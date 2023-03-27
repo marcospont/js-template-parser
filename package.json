@@ -24,6 +24,9 @@
 		"name": "Marcos Pont",
 		"email": "marcos.pont@gmail.com"
 	},
+	"files": [
+		"dist"
+	],
 	"source": "src/index.ts",
 	"main": "dist/index.js",
 	"module": "dist/module.js",
