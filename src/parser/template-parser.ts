@@ -55,7 +55,7 @@ export default class TemplateParser {
 					buffer.push(processors.variables(iterator, token.value, this.parameters, this.options));
 					break;
 				case 'opening-tag':
-					buffer.push(processors.tag(iterator, token.value, this.parameters, this.options));
+					buffer.push(processors.tag(iterator, token.value, this.parameters, this.options, true));
 					break;
 				case 'done':
 					break;

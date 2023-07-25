@@ -79,6 +79,8 @@ describe('Condition', () => {
 		});
 		expect(parser.parseTemplate('<if test="param1">#{param2}</if>')).toBe('foo');
 		expect(parser.parseTemplate('<if test="!param1">#{param2}</if>')).toBe('');
+		expect(parser.parseTemplate('before <if test="param1">#{param2} </if>after')).toBe('before foo after');
+		expect(parser.parseTemplate('before <if test="!param1">#{param2} </if>after')).toBe('before after');
 	});
 
 	it('must process variable references and if tags', () => {
