@@ -120,6 +120,8 @@ describe('Condition', () => {
 			param3: 'bar'
 		});
 		expect(parser.parseTemplate(`<if test="param1"><if test="param2 == 'foo'">#{param3}</if></if>`)).toBe('bar');
+		expect(parser.parseTemplate(`before <if test="param1"><if test="param2 == 'foo'">#{param3}</if></if> after`)).toBe('before bar after');
+		expect(parser.parseTemplate(`before <if test="!param1"><if test="param2 == 'foo'">#{param3}</if></if> after`)).toMatch(/before\s*after/);
 	});
 
 	it('must process comments in if tags', () => {

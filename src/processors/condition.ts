@@ -29,7 +29,7 @@ export default (
 	const attributes: TagAttributes = {};
 	let token: IteratorResult<Token>;
 	let missingAttribute;
-	let conditionResult = false;
+	let conditionResult = undefined;
 
 	token = iterator.next();
 
@@ -41,24 +41,28 @@ export default (
 				}
 				break;
 			case 'opening-tag-end':
-				if (token.value.token === '/>') {
-					throw new UnexpectedSelfClosingTagException(conditionToken.name);
+				if (conditionResult === undefined) {
+					if (token.value.token === '/>') {
+						throw new UnexpectedSelfClosingTagException(conditionToken.name);
+					}
+					missingAttribute = requiredAttributes.find(attr => !(attr in attributes));
+					if (missingAttribute) {
+						throw new MissingAttributeException(conditionToken.name, missingAttribute);
+					}
+					openingEnd = true;
+					conditionResult = !!evaluate(attributes['test'], params);
 				}
-				missingAttribute = requiredAttributes.find(attr => !(attr in attributes));
-				if (missingAttribute) {
-					throw new MissingAttributeException(conditionToken.name, missingAttribute);
-				}
-				openingEnd = true;
-				conditionResult = !!evaluate(attributes['test'], params);
 				break;
 			case 'attribute':
-				if (!knownAttributes.includes(token.value.name)) {
-					throw new UnknownAttributeException(conditionToken.name, token.value.name);
+				if (conditionResult === undefined) {
+					if (!knownAttributes.includes(token.value.name)) {
+						throw new UnknownAttributeException(conditionToken.name, token.value.name);
+					}
+					if (token.value.value.trim() === '') {
+						throw new AttributeValueException(conditionToken.name, token.value.name);
+					}
+					attributes[token.value.name] = token.value.value;
 				}
-				if (token.value.value.trim() === '') {
-					throw new AttributeValueException(conditionToken.name, token.value.name);
-				}
-				attributes[token.value.name] = token.value.value;
 				break;
 			case 'closing-tag':
 				if (token.value.name !== conditionToken.name) {
