@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.2](https://github.com/marcospont/js-template-parser/compare/v1.0.1...v1.0.2) (2023-07-25)
+
+
+### Bug Fixes
+
+* nested condition tag with false condition results incorrectly parsed ([e4725dd](https://github.com/marcospont/js-template-parser/commit/e4725dd2ee90343111aa1f01df3780fb1e933ae5))
+
 ### [1.0.1](https://github.com/marcospont/js-template-parser/compare/v1.0.0...v1.0.1) (2023-07-25)
 
 
