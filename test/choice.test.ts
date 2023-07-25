@@ -270,6 +270,14 @@ describe('Choice', () => {
 				</choose>
 			`)
 		).toBe('bar');
+		expect(
+			parser.parseTemplate(`
+				before <choose>
+					<when test="!param1">#{param2}</when>
+					<otherwise>#{param3}</otherwise>
+				</choose> after
+			`)
+		).toMatch(/before\s*bar\s*after/);
 	});
 
 	it('must process a choose tag with when and otherwise tags combined with if tags', () => {
