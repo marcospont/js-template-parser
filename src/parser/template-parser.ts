@@ -1,6 +1,5 @@
 import { Tokenizer } from 'html-tokenizer';
 
-import { MissingParameterException } from '../exceptions';
 import processors from '../processors';
 import { TemplateParameters, TemplateParserOptions } from '../types';
 import { createParametersProxy } from './proxy-builder';
