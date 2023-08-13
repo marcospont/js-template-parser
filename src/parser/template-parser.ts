@@ -3,6 +3,7 @@ import { Tokenizer } from 'html-tokenizer';
 import { MissingParameterException } from '../exceptions';
 import processors from '../processors';
 import { TemplateParameters, TemplateParserOptions } from '../types';
+import { createParametersProxy } from './proxy-builder';
 
 export default class TemplateParser {
 	static defaultOptions: TemplateParserOptions = {
@@ -16,16 +17,16 @@ export default class TemplateParser {
 	options: TemplateParserOptions;
 
 	constructor(parameters: TemplateParameters = {}, options: TemplateParserOptions = {}) {
-		this.parameters = this.createParametersProxy(parameters);
+		this.parameters = createParametersProxy(parameters, this);
 		this.options = { ...TemplateParser.defaultOptions, ...options };
 	}
 
 	setParameters(parameters: TemplateParameters) {
-		this.parameters = this.createParametersProxy(parameters);
+		this.parameters = createParametersProxy(parameters, this);
 	}
 
 	clearParameters() {
-		this.parameters = this.createParametersProxy({});
+		this.parameters = createParametersProxy({}, this);
 	}
 
 	setOptions(options: Partial<TemplateParserOptions>): void {
@@ -64,21 +65,5 @@ export default class TemplateParser {
 		}
 
 		return this.options.trim ? buffer.join('').trim() : buffer.join('');
-	}
-
-	private createParametersProxy(params: TemplateParameters): TemplateParameters {
-		const { proxy } = Proxy.revocable<TemplateParameters>(params, {
-			get: (source: TemplateParameters, prop: string) => {
-				if (typeof source[prop] === 'undefined') {
-					if (this.options.throwOnMissingParams) {
-						throw new MissingParameterException(prop);
-					}
-					return null;
-				}
-				return source[prop];
-			}
-		});
-
-		return proxy;
 	}
 }

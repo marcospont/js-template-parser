@@ -72,6 +72,24 @@ describe('Variables', () => {
 		}).toThrow(MissingParameterException);
 	});
 
+	it('must throw an exception for missing nested parameter references', () => {
+		parser.setParameters({
+			key: 'value',
+			otherKey: 2,
+			boolParam: false,
+			params: {
+				foo: 'bar'
+			},
+			moreParams: ['foo']
+		});
+		expect(() => {
+			parser.parseTemplate('#{key} #{otherKey} #{boolParam} #{params.baz}');
+		}).toThrow(MissingParameterException);
+		expect(() => {
+			parser.parseTemplate('#{key} #{otherKey} #{boolParam} #{moreParams.1}');
+		}).toThrow(MissingParameterException);
+	});
+
 	it('must handle missing variables without throwing exceptions', () => {
 		parser.setOptions({ throwOnMissingParams: false });
 		expect(parser.parseTemplate('#{param1}')).toBe('');
