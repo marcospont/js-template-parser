@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/marcospont/js-template-parser/compare/v1.0.3...v1.1.0) (2023-08-13)
+
+
+### Features
+
+* add support for nested missing params validation ([181838b](https://github.com/marcospont/js-template-parser/commit/181838b23bcf01ca72d8e36e1b19fca5a3aa3d85))
+
+
+### Bug Fixes
+
+* remove unused dependency ([4c8f725](https://github.com/marcospont/js-template-parser/commit/4c8f725f770adc8adcaf7dbb0958adbd29216ad0))
+
 ### [1.0.3](https://github.com/marcospont/js-template-parser/compare/v1.0.2...v1.0.3) (2023-07-25)
 
 ### [1.0.2](https://github.com/marcospont/js-template-parser/compare/v1.0.1...v1.0.2) (2023-07-25)
