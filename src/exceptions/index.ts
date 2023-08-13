@@ -5,7 +5,10 @@ export class TemplateParserException extends Error {
 }
 
 export class ExpressionParserException extends Error {
-	constructor(public expression: string, cause: Error) {
+	constructor(
+		public expression: string,
+		cause: Error
+	) {
 		super(`Error parsing expression: ${expression} (${cause.message})`);
 	}
 }
@@ -41,7 +44,11 @@ export class UnknownTagException extends TemplateParserException {
 }
 
 export class UnexpectedTagException extends TemplateParserException {
-	constructor(public tag: string, public parentTag: string, negative = false) {
+	constructor(
+		public tag: string,
+		public parentTag: string,
+		negative = false
+	) {
 		super(`Unexpected tag: <${tag}>. Must ${negative ? 'not ' : ''}be used inside a <${parentTag}> tag`);
 	}
 }
@@ -53,19 +60,28 @@ export class UnexpectedSelfClosingTagException extends TemplateParserException {
 }
 
 export class UnexpectedClosingTagException extends TemplateParserException {
-	constructor(public closingTag: string, public expectedTag: string) {
+	constructor(
+		public closingTag: string,
+		public expectedTag: string
+	) {
 		super(`Unexpected closing tag: </${closingTag}>. Expecting </${expectedTag}>`);
 	}
 }
 
 export class MissingAttributeException extends TemplateParserException {
-	constructor(public tag: string, public attribute: string) {
+	constructor(
+		public tag: string,
+		public attribute: string
+	) {
 		super(`The ${attribute} attribute is mandatory for the ${tag} tag`);
 	}
 }
 
 export class UnknownAttributeException extends TemplateParserException {
-	constructor(public tag: string, public attribute: string) {
+	constructor(
+		public tag: string,
+		public attribute: string
+	) {
 		super(`Unknown attribute ${attribute} on <${tag}> tag`);
 	}
 }
@@ -77,7 +93,11 @@ export class UnexpectedAttributeException extends TemplateParserException {
 }
 
 export class AttributeValueException extends TemplateParserException {
-	constructor(public tag: string, public attribute: string, mustBe?: string) {
+	constructor(
+		public tag: string,
+		public attribute: string,
+		mustBe?: string
+	) {
 		super(`Invalid value on attribute ${attribute} of tag <${tag}>${mustBe ? `. Expecting: ${mustBe}` : ''}`);
 	}
 }
