@@ -20,8 +20,8 @@ export class InvalidParameterException extends TemplateParserException {
 }
 
 export class MissingParameterException extends TemplateParserException {
-	constructor(public parameter: string) {
-		super(`Missing parameter reference: ${parameter}`);
+	constructor(public parameter: string | string[]) {
+		super(Array.isArray(parameter) ? `Missing parameter references: ${parameter.join(',')}` : `Missing parameter reference: ${parameter}`);
 	}
 }
 

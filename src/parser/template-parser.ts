@@ -1,5 +1,6 @@
 import { Tokenizer } from 'html-tokenizer';
 
+import { MissingParameterException } from '../exceptions';
 import processors from '../processors';
 import { TemplateParameters, TemplateParserOptions } from '../types';
 import { createParametersProxy } from './proxy-builder';
@@ -8,24 +9,26 @@ export default class TemplateParser {
 	static defaultOptions: TemplateParserOptions = {
 		mode: 'default',
 		throwOnMissingParams: true,
+		collectMissingParams: false,
 		trim: true,
 		preserveComments: true,
 		htmlEntities: {}
 	};
 	parameters: TemplateParameters;
 	options: TemplateParserOptions;
+	private missingParams: string[] = [];
 
 	constructor(parameters: TemplateParameters = {}, options: TemplateParserOptions = {}) {
-		this.parameters = createParametersProxy(parameters, this);
+		this.parameters = createParametersProxy(parameters, this, prop => this.missingParams.push(prop));
 		this.options = { ...TemplateParser.defaultOptions, ...options };
 	}
 
 	setParameters(parameters: TemplateParameters) {
-		this.parameters = createParametersProxy(parameters, this);
+		this.parameters = createParametersProxy(parameters, this, prop => this.missingParams.push(prop));
 	}
 
 	clearParameters() {
-		this.parameters = createParametersProxy({}, this);
+		this.parameters = createParametersProxy({}, this, prop => this.missingParams.push(prop));
 	}
 
 	setOptions(options: Partial<TemplateParserOptions>): void {
@@ -33,7 +36,16 @@ export default class TemplateParser {
 	}
 
 	parseTemplate(template: string): string | null {
-		return this.parseContents(template);
+		let parseResult = null;
+
+		this.missingParams = [];
+		parseResult = this.parseContents(template);
+
+		if (this.options.collectMissingParams && this.missingParams.length > 0) {
+			throw new MissingParameterException(this.missingParams);
+		}
+
+		return parseResult;
 	}
 
 	private parseContents(template: string): string | null {

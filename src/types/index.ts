@@ -7,6 +7,7 @@ export type TemplateParserMode = 'sql' | 'default';
 export type TemplateParserOptions = {
 	mode?: TemplateParserMode;
 	throwOnMissingParams?: boolean;
+	collectMissingParams?: boolean;
 	trim?: boolean;
 	preserveComments?: boolean;
 	htmlEntities?: {

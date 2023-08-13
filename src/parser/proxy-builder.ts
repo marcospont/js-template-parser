@@ -2,7 +2,11 @@ import { MissingParameterException } from '../exceptions';
 import { TemplateParameters } from '../types';
 import TemplateParser from './template-parser';
 
-export const createParametersProxy = (params: TemplateParameters, parser: TemplateParser): TemplateParameters => {
+export const createParametersProxy = (
+	params: TemplateParameters,
+	parser: TemplateParser,
+	addMissingProp: (prop: any) => void
+): TemplateParameters => {
 	const { proxy } = Proxy.revocable<TemplateParameters>(params, {
 		get: (source: TemplateParameters, prop: string) => {
 			if (isScalar(source[prop]) || isSymbol(prop)) {
@@ -12,16 +16,19 @@ export const createParametersProxy = (params: TemplateParameters, parser: Templa
 				if (parser.options.throwOnMissingParams) {
 					throw new MissingParameterException(prop);
 				}
+				if (parser.options.collectMissingParams) {
+					addMissingProp(prop);
+				}
 				return null;
 			}
-			return createNestedProxy(source[prop], prop, parser);
+			return createNestedProxy(source[prop], prop, parser, addMissingProp);
 		}
 	});
 
 	return proxy;
 };
 
-const createNestedProxy = (nestedParam: any, parentProp: string, parser: TemplateParser): any => {
+const createNestedProxy = (nestedParam: any, parentProp: string, parser: TemplateParser, addMissingProp: (prop: any) => void): any => {
 	const { proxy } = Proxy.revocable<any>(nestedParam, {
 		get: (source: any, prop: string) => {
 			if (isScalar(source[prop]) || isSymbol(prop)) {
@@ -31,8 +38,11 @@ const createNestedProxy = (nestedParam: any, parentProp: string, parser: Templat
 				if (parser.options.throwOnMissingParams) {
 					throw new MissingParameterException(`${parentProp}.${prop}`);
 				}
+				if (parser.options.collectMissingParams) {
+					addMissingProp(`${parentProp}.${prop}`);
+				}
 			}
-			return createNestedProxy(source[prop], `${parentProp}.${prop}`, parser);
+			return createNestedProxy(source[prop], `${parentProp}.${prop}`, parser, addMissingProp);
 		}
 	});
 

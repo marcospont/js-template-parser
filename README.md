@@ -28,6 +28,7 @@ The following options can be used to configure the template parser:
 
 - **mode** - 'sql' or 'default', default is 'default'. In SQL mode, string variables are escaped by the ANSI SQL standards
 - **throwOnMissingParams** - boolean, default is true. Whether to throw exceptions for missing parameter references
+- **collectMissingParams** - boolean, default is false. If true, an exception will be thrown with all missing parameter references
 - **trim** - boolean, default false. Whether to trim trailing whitespace chars from the template contents
 - **preserveComments** - boolean, default true. Whether to preserve or remove comments from the template
 - **htmlEntities** - accepts a map of HTML entities with their unicode translations
@@ -211,7 +212,7 @@ parser.setOptions(TemplateParser.defaultOptions); // reset parser to the default
 
 ## Requirements
 
-Node >= 14
+Node >= 18
 
 ## Contributing
 

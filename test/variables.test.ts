@@ -95,6 +95,15 @@ describe('Variables', () => {
 		expect(parser.parseTemplate('#{param1}')).toBe('');
 	});
 
+	it('must collect all missing params, adding them into a single exception', () => {
+		parser.setOptions({ throwOnMissingParams: false, collectMissingParams: true });
+		try {
+			parser.parseTemplate('#{key1} #{key2}');
+		} catch (e) {
+			expect((e as any).message).toBe('Missing parameter references: key1,key2');
+		}
+	});
+
 	it('must parse parameter references using sql mode', () => {
 		parser.setOptions({ mode: 'sql' });
 		parser.setParameters({
