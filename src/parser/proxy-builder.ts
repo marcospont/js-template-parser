@@ -5,7 +5,7 @@ import TemplateParser from './template-parser';
 export const createParametersProxy = (
 	params: TemplateParameters,
 	parser: TemplateParser,
-	addMissingProp: (prop: any) => void
+	addMissingProp: (prop: string) => void
 ): TemplateParameters => {
 	const { proxy } = Proxy.revocable<TemplateParameters>(params, {
 		get: (source: TemplateParameters, prop: string) => {
@@ -28,7 +28,7 @@ export const createParametersProxy = (
 	return proxy;
 };
 
-const createNestedProxy = (nestedParam: any, parentProp: string, parser: TemplateParser, addMissingProp: (prop: any) => void): any => {
+const createNestedProxy = (nestedParam: any, parentProp: string, parser: TemplateParser, addMissingProp: (prop: string) => void): any => {
 	const { proxy } = Proxy.revocable<any>(nestedParam, {
 		get: (source: any, prop: string) => {
 			if (isScalar(source[prop]) || isSymbol(prop)) {
@@ -41,6 +41,7 @@ const createNestedProxy = (nestedParam: any, parentProp: string, parser: Templat
 				if (parser.options.collectMissingParams) {
 					addMissingProp(`${parentProp}.${prop}`);
 				}
+				return null;
 			}
 			return createNestedProxy(source[prop], `${parentProp}.${prop}`, parser, addMissingProp);
 		}
