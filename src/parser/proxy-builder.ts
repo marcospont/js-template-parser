@@ -34,6 +34,9 @@ const createNestedProxy = (nestedParam: any, parentProp: string, parser: Templat
 			if (isScalar(source[prop]) || isSymbol(prop)) {
 				return source[prop];
 			}
+			if (prop === 'toJSON' && parser.options.mode === 'json') {
+				return source;
+			}
 			if (typeof nestedParam[prop] === 'undefined') {
 				if (parser.options.throwOnMissingParams) {
 					throw new MissingParameterException(`${parentProp}.${prop}`);

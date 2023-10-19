@@ -109,6 +109,32 @@ parser.parseTemplate(`#{listParam[0]}`); // prints 'foo'
 parser.parseTemplate(`#{listParam}`); // prints 'foo', 'bar'
 ```
 
+#### JSON Mode
+
+When the parser mode is set to 'json', all parameter interpolations will be performed using JSON.stringify().
+
+This means that independently of the parameter value, it will be rendered as the result of its conversion to JSON.
+
+When using the raw mode (variable references starting with '$'), the values won't be converted to JSON.
+
+```
+import { TemplateParser } from 'js-template-parser';
+
+const parser = new TemplateParser();
+
+parser.setOptions({
+  mode: 'json'
+});
+parser.setParameters({
+  stringParam: 'baz',
+  listParam: ['foo', 'bar']
+});
+parser.parseTemplate(`#{stringParam}`); // prints "baz"
+parser.parseTemplate(`${stringParam}`); // raw interpolation, prints baz
+parser.parseTemplate(`#{listParam[0]}`); // prints "foo"
+parser.parseTemplate(`#{listParam}`); // prints ["foo", "bar"]
+```
+
 ### Conditions
 
 Conditions are supported by the parser through an <if> HTML tag. The condition expression is expected to be provided through the 'test' attribute of the tag.

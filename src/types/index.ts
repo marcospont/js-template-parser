@@ -2,7 +2,7 @@ export interface TemplateParameters {
 	[key: string]: any;
 }
 
-export type TemplateParserMode = 'sql' | 'default';
+export type TemplateParserMode = 'sql' | 'json' | 'default';
 
 export type TemplateParserOptions = {
 	mode?: TemplateParserMode;

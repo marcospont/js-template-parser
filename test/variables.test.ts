@@ -127,4 +127,33 @@ describe('Variables', () => {
 		expect(parser.parseTemplate('${param2}')).toBe(`joe's`);
 		expect(parser.parseTemplate('${param3}')).toBe(`foo,bar`);
 	});
+
+	it('must parse parameter references using json mode', () => {
+		parser.setOptions({ mode: 'json' });
+		parser.setParameters({
+			param1: 'foo',
+			param2: ['foo', 'bar', 'baz'],
+			param3: {
+				inner: 'bar'
+			},
+			param4: 'with " quotes'
+		});
+		expect(parser.parseTemplate('{ {"prop": #{param1} }')).toBe('{ {"prop": "foo" }');
+		expect(parser.parseTemplate('{ {"prop": #{param2} }')).toBe('{ {"prop": ["foo","bar","baz"] }');
+		expect(parser.parseTemplate('{ {"prop": #{param2.0} }')).toBe('{ {"prop": "foo" }');
+		expect(parser.parseTemplate('{ {"prop": #{param3.inner} }')).toBe('{ {"prop": "bar" }');
+		expect(parser.parseTemplate('{ {"prop": #{param4} }')).toBe('{ {"prop": "with \\" quotes" }');
+	});
+
+	it('must parse raw parameter references using json mode', () => {
+		parser.setOptions({ mode: 'json' });
+		parser.setParameters({
+			param1: 'foo',
+			param2: {
+				inner: 'bar'
+			}
+		});
+		expect(parser.parseTemplate('{"prop": "${param1}"}')).toBe('{"prop": "foo"}');
+		expect(parser.parseTemplate('{"prop": "${param2.inner}"}')).toBe('{"prop": "bar"}');
+	});
 });

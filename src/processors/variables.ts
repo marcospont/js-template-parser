@@ -30,6 +30,8 @@ const formatVariable = (value: any, options: TemplateParserOptions, raw: boolean
 	switch (options.mode) {
 		case 'sql':
 			return sqlString.escape(value, true);
+		case 'json':
+			return JSON.stringify(value);
 		default:
 			return value !== null && value !== undefined ? value.toString() : '';
 	}
