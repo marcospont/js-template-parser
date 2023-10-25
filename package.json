@@ -1,6 +1,6 @@
 {
 	"name": "js-template-parser",
-	"version": "1.3.1",
+	"version": "1.3.2",
 	"description": "A template parser library that supports variables interpolation, conditions, choices and loops based on HTML tags and attributes",
 	"keywords": [
 		"template",
