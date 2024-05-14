@@ -26,12 +26,13 @@ yarn add js-template-parser
 
 The following options can be used to configure the template parser:
 
-- **mode** - 'sql' or 'default', default is 'default'. In SQL mode, string variables are escaped by the ANSI SQL standards
-- **throwOnMissingParams** - boolean, default is true. Whether to throw exceptions for missing parameter references
-- **collectMissingParams** - boolean, default is false. If true, an exception will be thrown with all missing parameter references
-- **trim** - boolean, default false. Whether to trim trailing whitespace chars from the template contents
-- **preserveComments** - boolean, default true. Whether to preserve or remove comments from the template
+- **mode** - `sql`, `json` or `default`, default is `default`
+- **throwOnMissingParams** - boolean, default is `true`. Whether to throw exceptions for missing parameter references
+- **collectMissingParams** - boolean, default is `false`. If `true`, an exception will be thrown with all missing parameter references
+- **trim** - boolean, default `false`. Whether to trim trailing whitespace chars from the template contents
+- **preserveComments** - boolean, default `true`. Whether to preserve or remove comments from the template
 - **htmlEntities** - accepts a map of HTML entities with their unicode translations
+- **functions** - accepts a map of functions that can be used in condition/choice tests
 
 ```
 import { TemplateParser } from 'js-template-parser';
@@ -45,11 +46,13 @@ parser.setOptions({
 });
 ```
 
+The `functions` option can be used to register callbacks that can later be referenced in tests within the template code. Tests are used in condition `<if>`tags and choice `<when>` tags.
+
 ### Parameters Interpolation
 
-The parser expects a set of parameters to be passed as a key-value map. The map keys can be of any type. Inside the template contents, parameters can be referenced and interpolated in two ways: escape mode and raw mode. Escape mode interpolations must start with the '#' character and raw mode interpolations must start with the '$' character. Curly braces are used as the delimiters of the interpolation.
+The parser expects a set of parameters to be passed as a key-value map. The map keys can be of any type. Inside the template contents, parameters can be referenced and interpolated in two ways: escape mode and raw mode. Escape mode interpolations must start with the `#` character and raw mode interpolations must start with the `$` character. Curly braces are used as the delimiters of the interpolation.
 
-When the mode option is set to default, the outcome of the interpolations is the same in both modes. However, when mode is set to sql, escape mode will escape all string values whereas the raw mode will apply the original parameter values.
+When the mode option is set to default, the outcome of the interpolations is the same in both modes. When mode is set to sql, escape mode will escape all string values whereas the raw mode will apply the original parameter values. When mode is set to json, escape mode will convert values using `JSON.stringify`.
 
 If a parameter is an array or an object, the parser interpolation supports accessing members of array or object parameters in any level, using the dot or square brackets notations.
 
@@ -77,7 +80,7 @@ parser.parseTemplate(`#{listParam[0]}`); // outputs foo
 parser.parseTemplate(`#{objParam.foo}`); // outputs 1
 ```
 
-The parser checks if the parameter names referenced at root level of the interpolation are registered, throwing exceptions for invalid references unless the 'throwOnMissingParams' option is disabled.
+The parser checks if the parameter names referenced at root level of the interpolation are registered, throwing exceptions for invalid references unless the `throwOnMissingParams` option is disabled.
 
 When accessing array or object members that are invalid in any level, the parser will convert it into an empty string.
 
@@ -85,7 +88,7 @@ When referencing an array or an object parameter directly in default mode, the p
 
 #### SQL Mode
 
-When the parser mode is set to 'sql', all parameters string interpolations (in any depth) will be escaped.
+When the parser mode is set to `sql`, all parameters string interpolations (in any depth) will be escaped.
 
 If an array parameter is directly interpolated in sql mode, the parser will convert it into a string using comma as the elements separator.
 
@@ -111,11 +114,11 @@ parser.parseTemplate(`#{listParam}`); // prints 'foo', 'bar'
 
 #### JSON Mode
 
-When the parser mode is set to 'json', all parameter interpolations will be performed using JSON.stringify().
+When the parser mode is set to `json`, all parameter interpolations will be performed using `JSON.stringify()`.
 
 This means that independently of the parameter value, it will be rendered as the result of its conversion to JSON.
 
-When using the raw mode (variable references starting with '$'), the values won't be converted to JSON.
+When using the raw mode (variable references starting with `$`), the values won't be converted to JSON.
 
 ```
 import { TemplateParser } from 'js-template-parser';
@@ -137,13 +140,15 @@ parser.parseTemplate(`#{listParam}`); // prints ["foo", "bar"]
 
 ### Conditions
 
-Conditions are supported by the parser through an <if> HTML tag. The condition expression is expected to be provided through the 'test' attribute of the tag.
+Conditions are supported by the parser through an `<if>` HTML tag. The condition expression is expected to be provided through the `test` attribute of the tag.
 
-The expressions used in conditions may reference the parameters passed to the parser (in any depth, like in the interpolation support mentioned above). Also the expressions can contain boolean constants, strings, numbers and operators. For detailed explanations on the syntax supported within the condition expressions, please check the [morph-expressions](https://www.npmjs.com/package/morph-expressions) documentation.
+The expressions used in conditions may reference the parameters passed to the parser (in any depth, like in the interpolation support mentioned above). The expressions can also contain boolean constants, strings, numbers and operators. Condition tests can also call functions registered through the `functions` parser option.
 
-Condition tags can be nested, the 'test' attribute is mandatory and cannot be empty.
+For detailed explanations on the syntax supported within the condition expressions, please check the [morph-expressions](https://www.npmjs.com/package/morph-expressions) library documentation.
 
-Examples:
+Condition tags can be nested, the `test` attribute is mandatory and cannot be empty.
+
+#### Examples:
 
 ```
 import { TemplateParser } from 'js-template-parser';
@@ -159,17 +164,34 @@ parser.parseTemplate(`<if test="check">#{thenValue}</if>`); // prints foo
 parser.parseTemplate(`<if test="!check">#{thenValue}</if>`); // prints an empty string
 ```
 
+```
+import { TemplateParser } from 'js-template-parser';
+
+const parser = new TemplateParser();
+
+parser.setParameters({
+  date: '01/01/2024'
+});
+parser.setOptions({
+  functions: {
+    isISODate: value => String(value).match(new RegExp('[0-9]+\\/[0-9]+\\/[0-9]+'))
+  }
+});
+
+parser.parseTemplate(`<if test="isISODate(date)">valid date</if>`); // prints valid date
+```
+
 ### Choices
 
-Choices are supported by the parser through <choose>, <when> and <otherwise> tags. The conditions to be evaluated are expected to be provided through the 'test' attribute of <when> tags.
+Choices are supported by the parser through `<choose>`, `<when>` and `<otherwise>` tags. The conditions to be evaluated are expected to be provided through the 'test' attribute of `<when>` tags.
 
-Like the 'test' attribute of the <if> tag, the 'test' attirbute of the <when> tags also supports parameter references in any depth, boolean constants, strings, numbers and operators.
+Like the `test` attribute of the `<if>` tag, the `test` attribute of the `<when>` tags also supports parameter references in any depth, boolean constants, strings, numbers and operators. It also support calling functions registered through the `functions` parser option.
 
-Choice tags can be nested. The 'test' attribute is mandatory in <when> tags and cannot be empty.
+Choice tags can be nested. The `test` attribute is mandatory in `<when>` tags and cannot be empty.
 
-A <choose> tag must have at least one <when> tag and cannot contain text or comments between the <choose> tag and the <when> and <otherwise> tags. The <otherwise> tag can be declared only once under a <choose> tag and must be the last child (after all <when> tags). The first <when> tag containing a test expression that evaluates to true will be processed, whereas all other subsequent <when> tags and the <otherwise> tag will be discarded (even if the evaluate to true).
+A `<choose>` tag must have at least one `<when>` tag and cannot contain text or comments between the `<choose>` tag and the `<when>` and `<otherwise>` tags. The `<otherwise>` tag can be declared only once under a `<choose>` tag and must be the last child (after all `<when>` tags). The first `<when>` tag containing a test expression that evaluates to a truthy value will be processed, whereas all other subsequent `<when>` tags and the `<otherwise>` tag will be discarded (even if they evaluate to truthy values).
 
-Examples:
+#### Examples:
 
 ```
 import { TemplateParser } from 'js-template-parser';
@@ -195,19 +217,41 @@ parser.parseTemplate(`
 `); // prints bar
 ```
 
+```
+import { TemplateParser } from 'js-template-parser';
+
+const parser = new TemplateParser();
+
+parser.setParameters({
+  date: '01/01/2024'
+});
+parser.setOptions({
+  functions: {
+    isISODate: value => String(value).match(new RegExp('[0-9]+\\/[0-9]+\\/[0-9]+'))
+  }
+});
+
+parser.parseTemplate(`
+  <choose>
+    <when test="isISODate(date)">valid date</when>
+    <otherwise>invalid date</otherwise>
+  </choose>
+`); // prints valid date
+```
+
 ### Loops
 
-Loops are implemented by the parser through <foreach> tags. These tags expected a mandatory 'collection' attribute that must contain an iterable parameter (strings, arrays or other objects supporting an iterator).
+Loops are implemented by the parser through `<foreach>` tags. These tags expected a mandatory `collection` attribute that must contain an iterable parameter (strings, arrays or other objects supporting an iterator).
 
-The 'collection' attribute only accepts direct parameter references (no nested property access support).
+The `collection` attribute only accepts direct parameter references (no nested property access support).
 
-Within the <foreach> tag, the current loop item can be accessed by the #{item} parameter reference, although this name can be changed through the 'item' attribute of the <foreach> tag. Likewise, the current loop index can be accessed by the #{index} parameter reference, which can also be customized by the 'index' attribute of the <foreach> tag.
+Within the `<foreach>` tag, the current loop item can be accessed by the `#{item}` parameter reference, although this name can be changed through the `item` attribute of the `<foreach>` tag. Likewise, the current loop index can be accessed by the `#{index}` parameter reference, which can also be customized by the `index` attribute of the `<foreach>` tag.
 
-Loops also support prefixes and suffixes through the 'open' and 'close' attributes. The loop iterations output can also be joined using a custom separator defined in the 'separator' attribute.
+Loops also support prefixes and suffixes through the `open` and `close` attributes. The loop iterations output can also be joined using a custom separator defined in the `separator` attribute.
 
-Last but not least, the output produced by each loop iteration can be trimmed if the 'trim' attribute is set to 'true'.
+Last but not least, the output produced by each loop iteration can be trimmed if the `trim` attribute is set to `true`.
 
-Examples:
+#### Examples:
 
 ```
 import { TemplateParser } from 'js-template-parser';

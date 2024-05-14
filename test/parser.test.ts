@@ -1,4 +1,4 @@
-import { UnexpectedTagException, UnknownTagException } from '../src/exceptions';
+import { TemplateParserException, UnexpectedTagException, UnknownTagException } from '../src/exceptions';
 import TemplateParser from '../src/parser/template-parser';
 
 describe('Parser', () => {
@@ -34,6 +34,20 @@ describe('Parser', () => {
 		expect(() => {
 			parser.parseTemplate('<when>');
 		}).toThrow(UnexpectedTagException);
+	});
+
+	it('must throw an exception for invalid functions passed in the parser options', () => {
+		parser.setParameters({
+			param1: 'foo'
+		});
+		parser.setOptions({
+			functions: {
+				func: 'bar' as unknown as (...args: any[]) => any
+			}
+		});
+		expect(() => {
+			parser.parseTemplate('<if test="func(param1)">');
+		}).toThrow(TemplateParserException);
 	});
 
 	it('must handle comments properly', () => {

@@ -280,6 +280,25 @@ describe('Choice', () => {
 		).toMatch(/before\s*bar\s*after/);
 	});
 
+	it('must process a choose tag using functions', () => {
+		parser.setParameters({
+			param1: '01/01/2024'
+		});
+		parser.setOptions({
+			functions: {
+				isISODate: (value: string) => String(value).match(new RegExp('[0-9]+\\/[0-9]+\\/[0-9]+'))
+			}
+		});
+		expect(
+			parser.parseTemplate(`
+				before <choose>
+					<when test="isISODate(param1)">#{param1}</when>
+					<otherwise>not a date</otherwise>
+				</choose> after
+			`)
+		).toMatch(/before\s*01\/01\/2023\s*after/);
+	});
+
 	it('must process a choose tag with when and otherwise tags combined with if tags', () => {
 		parser.setParameters({
 			param1: true,

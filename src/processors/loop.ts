@@ -31,7 +31,7 @@ const attributeValidator = (name: string, val: string, params: TemplateParameter
 		case 'item':
 		case 'index':
 			if (!val.match(/^[A-Z][A-Z0-9_]*$/i)) {
-				throw new AttributeValueException('foreach', name, 'word bounday characters');
+				throw new AttributeValueException('foreach', name, 'word boundary characters');
 			}
 			return val;
 		case 'trim':

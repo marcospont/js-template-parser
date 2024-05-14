@@ -13,6 +13,9 @@ export type TemplateParserOptions = {
 	htmlEntities?: {
 		[key: string]: string;
 	};
+	functions?: {
+		[key: string]: (...args: any[]) => any;
+	};
 };
 
 export type TagAttributes = {
@@ -21,4 +24,9 @@ export type TagAttributes = {
 
 export type LoopAttributes = {
 	[key: string]: string | any[] | boolean;
+};
+
+export type ExpressionParserImpl = {
+	parseAndEval: (input: string, params: TemplateParameters) => any;
+	registerFunction: (name: string, impl: (...args: any[]) => any) => void;
 };

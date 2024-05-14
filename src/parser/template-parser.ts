@@ -3,6 +3,7 @@ import { Tokenizer } from 'html-tokenizer';
 import { MissingParameterException } from '../exceptions';
 import processors from '../processors';
 import { TemplateParameters, TemplateParserOptions } from '../types';
+import { createParser } from './expression-parser';
 import { createParametersProxy } from './proxy-builder';
 
 export default class TemplateParser {
@@ -12,7 +13,8 @@ export default class TemplateParser {
 		collectMissingParams: false,
 		trim: true,
 		preserveComments: true,
-		htmlEntities: {}
+		htmlEntities: {},
+		functions: {}
 	};
 	parameters: TemplateParameters;
 	options: TemplateParserOptions;
@@ -39,6 +41,7 @@ export default class TemplateParser {
 		let parseResult = null;
 
 		this.missingParams = [];
+		createParser(this.options);
 		parseResult = this.parseContents(template);
 
 		if (this.options.collectMissingParams && this.missingParams.length > 0) {

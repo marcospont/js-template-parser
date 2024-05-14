@@ -103,6 +103,23 @@ describe('Condition', () => {
 		expect(parser.parseTemplate(`this is a test <if test="param1 && param2 == 'foo'">#{param3}</if>`)).toBe('this is a test bar');
 	});
 
+	it('must process if tags using functions', () => {
+		parser.setParameters({
+			param1: '01/01/2024',
+			param2: 'foo-123-bar'
+		});
+		parser.setOptions({
+			functions: {
+				match: (value: string, expr: string) => String(value).match(new RegExp(expr)),
+				isISODate: (value: string) => String(value).match(new RegExp('[0-9]+\\/[0-9]+\\/[0-9]+'))
+			}
+		});
+		expect(parser.parseTemplate(`this is a test <if test="match(param1, '[0-9]+\\/[0-9]+\\/[0-9]+')">#{param1}</if>`)).toBe(
+			'this is a test 01/01/2023'
+		);
+		expect(parser.parseTemplate(`this is a test <if test="isISODate(param1)">#{param1}</if>`)).toBe('this is a test 01/01/2023');
+	});
+
 	it('must throw an exception for invalid test expressions on an if tag', () => {
 		parser.setParameters({
 			param1: 'foo',
