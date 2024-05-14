@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/marcospont/js-template-parser/compare/v1.3.2...v1.4.0) (2024-05-14)
+
+
+### Features
+
+* add support to register functions to be called in condition/choice tests ([a7c7ba4](https://github.com/marcospont/js-template-parser/commit/a7c7ba47439a15f46b510caf54b278c6f0198c73))
+
 ### [1.3.2](https://github.com/marcospont/js-template-parser/compare/v1.3.1...v1.3.2) (2023-10-25)
 
 ### [1.3.1](https://github.com/marcospont/js-template-parser/compare/v1.3.0...v1.3.1) (2023-10-25)
